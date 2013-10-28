@@ -10,6 +10,9 @@ In order to further minimize the memory footprint, a node's certificate is
 encoded in a C array and embedded within the code. Consequently, there is no
 need to read the certificate from the ROM, for example.
 
+The code here is presented as an example for the Contiki OS, but can easily be
+ported to other systems.
+
 Design choices
 --------------
 
@@ -134,9 +137,69 @@ TBD
 
 Note that this code only works if there is two nodes communicating together.
 
+External libraries embedded
+---------------------------
+
+These libraries have been extracted from the TinyDTLS source code. We tried to
+give proper credit to both the people who initially wrote the code and the
+people who extended it to work with TinyDTLS.
+
+### SHA-256 implementation
+
+Initial implementation from [Aaron Gifford](http://www.aarongifford.com/computers/sha.html).
+Modified by unknown to enable/disable SHA-384 and SHA-512 at build time.
+
+### ECC implementation
+
+    This is a efficient ECC implementation on the secp256r1 curve for 32 Bit CPU
+    architectures. It provides basic operations on the secp256r1 curve and support
+    for ECDH and ECDSA.
+
+Initial code is from Chris K Cockrum.
+
+Modification for TinyDTLS were done by:
+* Jens Trillmann
+* Marc Müller-Weinhardt
+* Lars Schmertmann
+* Hauke Mehrtens
+
 Notes
 -----
 
-* there is no "self-signed" certificate. Nodes don't have the capability to
-  determine if a certificate must be trusted (unless there is a path to a
-  Certificate Authority).
+* this library does not provide any equivalent of a "self-signed" certificate.
+  This is because this code is intended to run on standalone devices and sensor
+  nodes  don't have the capability to determine if a certificate must be
+  trusted (unless there is a path to a Certificate Authority).
+
+Contributors
+------------
+
+* Tony Cheneau <tony.cheneau@nist.gov>
+
+Conditions Of Use
+-----------------
+
+The following licence applies for all the code in this repository that does not
+belong to a third party:
+
+<em>
+This software was developed by employees of the National Institute of
+Standards and Technology (NIST), and others.
+This software has been contributed to the public domain.
+Pursuant to title 15 United States Code Section 105, works of NIST
+employees are not subject to copyright protection in the United States
+and are considered to be in the public domain.
+As a result, a formal license is not needed to use this software.
+
+This software is provided "AS IS."
+NIST MAKES NO WARRANTY OF ANY KIND, EXPRESS, IMPLIED
+OR STATUTORY, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT
+AND DATA ACCURACY.  NIST does not warrant or make any representations
+regarding the use of the software or the results thereof, including but
+not limited to the correctness, accuracy, reliability or usefulness of
+this software.
+</em>
+
+
+
