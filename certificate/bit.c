@@ -1,16 +1,16 @@
 #include "bit.h"
 
-#ifndef WITH_CONTIKI
+#if !defined(WITH_CONTIKI) && defined(HAVE_ASSERT_H)
 #include <assert.h>
+#else
+#define assert(condition) do{} while(0)
 #endif
 
 void uint32_array_to_uint8_be(uint32_t * src, int length, uint8_t * dst)
 {
 	int i;
 
-#ifndef WITH_CONTIKI
 	assert(length % sizeof(uint32_t) == 0);
-#endif
 
 	for (i = 0; i < length / sizeof(uint32_t); i++)
 	{
@@ -22,9 +22,7 @@ void uint8be_array_to_uint32_host(uint8_t * src, int length, uint32_t * dst)
 {
 	int i, scale_f = sizeof(uint32_t) / sizeof(uint8_t);
 
-#ifndef WITH_CONTIKI
 	assert(length % sizeof(uint32_t) == 0);
-#endif
 
 	for (i = 0; i < length / scale_f; i++)
 	{
