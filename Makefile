@@ -1,4 +1,5 @@
 all: udp-client udp-server
+extra: example tools tests
 CONTIKI=contiki
 
 WITH_UIP6=1
@@ -10,6 +11,10 @@ CFLAGS+= -DUIP_CONF_IPV6_RPL \
 
 PROJECT_SOURCEFILES += ecc.c sha2.c certificate.c bit.c
 PROJECTDIRS += sha2 ecc certificate
+
+ifeq ($(TARGET),econotag)
+CFLAGS+= -DWORDS_BIGENDIAN
+endif
 
 ifdef WITH_COMPOWER
 APPS+=powertrace
@@ -24,3 +29,12 @@ CFLAGS+=-DPERIOD=$(PERIOD)
 endif
 
 include $(CONTIKI)/Makefile.include
+
+example:
+	make -C example
+
+tools:
+	make -C tools
+
+tests:
+	make -C tests
