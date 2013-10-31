@@ -12,8 +12,9 @@ CFLAGS+= -DUIP_CONF_IPV6_RPL \
 PROJECT_SOURCEFILES += ecc.c sha2.c certificate.c bit.c
 PROJECTDIRS += sha2 ecc certificate
 
+# mc1322x is little endian only
 ifeq ($(TARGET),econotag)
-CFLAGS+= -DWORDS_BIGENDIAN
+CFLAGS+= -DWORDS_LITTLEENDIAN
 endif
 
 ifdef WITH_COMPOWER
