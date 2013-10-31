@@ -31,7 +31,7 @@ int verify_certificate(s_pub_certificate * signer_cert,
                        s_pub_certificate * certificate)
 {
 	SHA256_CTX c256;
-	char hash[SHA256_DIGEST_LENGTH];
+	uint8_t hash[SHA256_DIGEST_LENGTH];
 	/* fix the endianness */
 	uint8_t pub_x[32], pub_y[32];
 	uint32_array_to_uint8_be(signer_cert->pub_x, 32, pub_x);
@@ -42,7 +42,7 @@ int verify_certificate(s_pub_certificate * signer_cert,
 	SHA256_Init(&c256);
 	SHA256_Update(&c256, pub_x, 32);
 	SHA256_Update(&c256, pub_y, 32);
-	SHA256_Update(&c256, (unsigned char*)signer_cert->issuer,
+	SHA256_Update(&c256, (uint8_t *)signer_cert->issuer,
 	              sizeof(signer_cert->issuer));
 	SHA256_Final((uint8_t *) hash, &c256);
 
