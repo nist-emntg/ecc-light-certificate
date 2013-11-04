@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include "certificate.h"
+#include "ecc.h"
 
 void print_usage(const char * prgname)
 {
@@ -53,6 +54,8 @@ int main(int argc, const char *argv[])
 		print_usage(argv[0]);
 		exit(EXIT_FAILURE);
 	}
+
+	ecc_init();
 
 	/* for critically secure code, you would need a better seed */
 	srand(time(NULL));

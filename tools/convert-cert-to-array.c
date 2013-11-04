@@ -31,6 +31,7 @@
 #include <fcntl.h>
 
 #include "certificate.h"
+#include "ecc.h"
 
 void print_usage(const char * prgname)
 {
@@ -58,6 +59,8 @@ int main(int argc, char * const argv[])
 		print_usage(argv[0]);
 		exit(EXIT_FAILURE);
 	}
+
+	ecc_init();
 
 	while ((opt = getopt(argc, argv, "p")) != -1) {
 		switch (opt) {

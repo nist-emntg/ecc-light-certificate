@@ -7,9 +7,10 @@ UIP_CONF_IPV6=1
 
 CFLAGS+= -DUIP_CONF_IPV6_RPL \
 		 -DSHA2_USE_INTTYPES_H \
-		 -DWITH_SHA256
+		 -DWITH_SHA256 \
+		 -DSHAMIR_TRICK
 
-PROJECT_SOURCEFILES += ecc.c sha2.c certificate.c bit.c
+PROJECT_SOURCEFILES += ecc.c nn.c sha2.c certificate.c bit.c
 PROJECTDIRS += sha2 ecc certificate
 
 # mc1322x is little endian only
