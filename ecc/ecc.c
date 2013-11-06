@@ -665,8 +665,42 @@ ecc_get_base_p()
 /*---------------------------------------------------------------------------*/
 void ecc_gen_pub_key(NN_DIGIT *priv_key, point_t * pub)
 {
-	ecc_mul(pub, &param.G, priv_key);
+	ecc_win_mul(pub, priv_key, pBaseArray);
 }
+/*---------------------------------------------------------------------------*/
+void ecc_gen_private_key(NN_DIGIT *PrivateKey)
+{
+  NN_UINT order_digit_len;
+  NN_UINT order_bit_len;
+  char done = FALSE;
+  uint8_t ri;
+  NN_DIGIT digit_mask;
+
+  order_bit_len = NN_Bits(param.r, NUMWORDS);
+  order_digit_len = NN_Digits(param.r, NUMWORDS);
+
+  while (!done) {
+
+      for (ri = 0; ri < order_digit_len; ri++) {
+          PrivateKey[ri] = rand(); /* TODO: use something more architecture agnostic */
+        }
+
+      for (ri = order_digit_len; ri < NUMWORDS; ri++) {
+          PrivateKey[ri] = 0;
+        }
+
+      if (order_bit_len % 32 != 0) {
+          digit_mask = 0xffffffff >> (32 - order_bit_len % 32);
+          PrivateKey[order_digit_len - 1] = PrivateKey[order_digit_len - 1] & digit_mask;
+        }
+      NN_ModSmall(PrivateKey, param.r, NUMWORDS);
+
+      if (NN_Zero(PrivateKey, NUMWORDS) != 1) {
+        done = TRUE;
+        }
+    }
+}
+
 /*---------------------------------------------------------------------------*/
 static int isGreater(const NN_DIGIT *A, const NN_DIGIT *B, uint8_t length){
         int i;
@@ -682,17 +716,6 @@ static int isGreater(const NN_DIGIT *A, const NN_DIGIT *B, uint8_t length){
 /*---------------------------------------------------------------------------*/
 int ecc_is_valid_key(const NN_DIGIT * priv_key)
 {
-	int i;
-	for(i=0; i< NUMWORDS; i++) {
-		printf("0x%.2X ", param.p[i]);
-	}
-	printf("\n");
-	for(i=0; i< NUMWORDS; i++) {
-		printf("0x%.2X ", priv_key[i]);
-	}
-	printf("\n");
-
-	printf("%d\n", isGreater(param.r, priv_key, NUMBYTES));
         return isGreater(param.r, priv_key, NUMBYTES) == 1;
 }
 

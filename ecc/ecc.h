@@ -179,6 +179,12 @@ curve_params_t * ecc_get_param(void);
  */
 void ecc_gen_pub_key(NN_DIGIT *priv_key, point_t * pub);
 
+
+/**
+ * \brief             Compute a private key (secret)
+ */
+void ecc_gen_private_key(NN_DIGIT *PrivateKey);
+
 /**
  * \brief             Verify if a public key is valid
  */

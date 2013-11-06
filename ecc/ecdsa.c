@@ -77,7 +77,6 @@ gen_random(NN_DIGIT *a, uint8_t length)
 */
   int ri;
   for(ri=0; ri<length; ri++) {
-    srand(100);
     a[ri] = ((uint32_t)rand() << 16)^((uint32_t)rand());
   }
 
@@ -229,10 +228,11 @@ ecdsa_sign(uint8_t sha256sum[SHA256_DIGEST_LENGTH], NN_DIGIT *r, NN_DIGIT *s, NN
   NN_DIGIT digest[NUMWORDS];
   point_t P;
   NN_DIGIT sha256tmp[SHA256_DIGEST_LENGTH/NN_DIGIT_LEN];
+  NN_UINT result_bit_len;
+  NN_UINT order_bit_len;
 
   while(!done) {
-    gen_random(k, NUMWORDS);
-    NN_Mod(k, k, NUMWORDS, order, NUMWORDS);
+    ecc_gen_private_key(k);
 
     if((NN_Zero(k, NUMWORDS)) == 1) {
       continue;
@@ -248,7 +248,22 @@ ecdsa_sign(uint8_t sha256sum[SHA256_DIGEST_LENGTH], NN_DIGIT *r, NN_DIGIT *s, NN
     NN_ModInv(k_inv, k, order, NUMWORDS);
 
     NN_Decode(sha256tmp, SHA256_DIGEST_LENGTH/NN_DIGIT_LEN, sha256sum, SHA256_DIGEST_LENGTH);
-    NN_Mod(digest, sha256tmp, SHA256_DIGEST_LENGTH/NN_DIGIT_LEN, order, NUMWORDS);
+
+    result_bit_len = NN_Bits(sha256tmp, SHA256_DIGEST_LENGTH / NN_DIGIT_LEN);
+    order_bit_len = NN_Bits(order, NUMWORDS);
+
+    if (result_bit_len > order_bit_len) {
+        NN_Mod(digest, sha256tmp, SHA256_DIGEST_LENGTH/NN_DIGIT_LEN, order, NUMWORDS);
+
+    } else
+    {
+        memset(digest, 0, NUMBYTES);
+        NN_Assign(digest, sha256tmp, SHA256_DIGEST_LENGTH / NN_DIGIT_LEN);
+        if (result_bit_len == order_bit_len) {
+            NN_ModSmall(digest, order, NUMBYTES);
+        }
+    }
+
     NN_ModMult(k, d, r, order, NUMWORDS);
     NN_ModAdd(tmp, digest, k, order, NUMWORDS);
     NN_ModMult(s, k_inv, tmp, order, NUMWORDS);
@@ -271,8 +286,10 @@ ecdsa_verify(uint8_t sha256sum[SHA256_DIGEST_LENGTH], NN_DIGIT *r, NN_DIGIT *s, 
   point_t u1P, u2Q;
 #endif
   point_t final;
+  NN_UINT result_bit_len;
+  NN_UINT order_bit_len;
 
-  /* r and s shoud be in [1, p-1] */
+  /* r and s should be in [1, p-1] */
   if((NN_Cmp(r, order, NUMWORDS)) >= 0) {
     return 3;
   }
@@ -289,8 +306,20 @@ ecdsa_verify(uint8_t sha256sum[SHA256_DIGEST_LENGTH], NN_DIGIT *r, NN_DIGIT *s, 
   /* w = s^-1 mod p */
   NN_ModInv(w, s, order, NUMWORDS);
 
+  memset(digest, 0, NUMBYTES);
   NN_Decode(sha256tmp, SHA256_DIGEST_LENGTH/NN_DIGIT_LEN, sha256sum, SHA256_DIGEST_LENGTH);
-  NN_Mod(digest, sha256tmp, SHA256_DIGEST_LENGTH/NN_DIGIT_LEN, order, NUMWORDS);
+
+  result_bit_len = NN_Bits(sha256tmp, SHA256_DIGEST_LENGTH / NN_DIGIT_LEN);
+  order_bit_len = NN_Bits(order, NUMWORDS);
+  if (result_bit_len > order_bit_len) {
+      NN_Mod(digest, sha256tmp, SHA256_DIGEST_LENGTH/NN_DIGIT_LEN, order, NUMWORDS);
+  } else {
+      NN_Assign(digest, sha256tmp, SHA256_DIGEST_LENGTH / NN_DIGIT_LEN);
+      if (result_bit_len == order_bit_len) {
+          NN_ModSmall(digest, order, NUMWORDS);
+      }
+  }
+
   /* u1 = ew mod p */
   NN_ModMult(u1, digest, w, order, NUMWORDS);
   /* u2 = rw mod p */
@@ -305,7 +334,17 @@ ecdsa_verify(uint8_t sha256sum[SHA256_DIGEST_LENGTH], NN_DIGIT *r, NN_DIGIT *s, 
   ecc_add(&final, &u1P, &u2Q);
 #endif
 
-  NN_Mod(w, final.x, NUMWORDS, order, NUMWORDS);
+  result_bit_len = NN_Bits(final.x, NUMWORDS);
+  order_bit_len = NN_Bits(order, NUMWORDS);
+
+  if (result_bit_len > order_bit_len) {
+      NN_Mod(w, final.x, NUMWORDS, order, NUMWORDS);
+  } else {
+      NN_Assign(w, final.x, NUMWORDS);
+      if (result_bit_len == order_bit_len) {
+          NN_ModSmall(w, order, NUMWORDS);
+      }
+  }
 
   if((NN_Cmp(w, r, NUMWORDS)) == 0) {
     return 1;

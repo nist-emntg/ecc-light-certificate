@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "bit.h"
+#include "ecc.h"
 
 int main(int argc, char * argv[])
 {
@@ -29,9 +30,12 @@ int main(int argc, char * argv[])
 	s_certificate cert_path[4];
 	s_pub_certificate pub_cert_path[4];
 
-	uint8_t secret[32], secret2[32];
-	uint8_t point[POINT_SIZE], point2[POINT_SIZE];
-	uint8_t shared_secret1[POINT_SIZE], shared_secret2[POINT_SIZE];
+	NN_DIGIT secret[NUMWORDS], secret2[NUMWORDS];
+	uint8_t point[2 * NUMBYTES], point2[2 * NUMBYTES];
+	uint8_t shared_secret1[2 * NUMBYTES], shared_secret2[2 * NUMBYTES];
+
+	/* ecc initialization */
+	ecc_init();
 
 	/* initialization */
 	memset(ser_cert, 0, CERT_SIZE);
@@ -50,6 +54,7 @@ int main(int argc, char * argv[])
 
 	/* perform some checks on the certificate */
 
+	printf("%d\n", verify_certificate(&issuer.pub_cert, &cert.pub_cert));
 	assert(verify_certificate(&issuer.pub_cert, &cert.pub_cert) == 0);
 
 	/* test against the wrong issuer */
@@ -158,7 +163,7 @@ int main(int argc, char * argv[])
 	/* node 2 */
 	ecc_ecdh_from_network(secret2, point, shared_secret2);
 
-	assert(memcmp(shared_secret1, shared_secret2, POINT_SIZE) == 0);
+	assert(memcmp(shared_secret1, shared_secret2, NUMBYTES) == 0);
 
 	return 0;
 }
