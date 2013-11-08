@@ -51,7 +51,7 @@
 static point_t pqBaseArray[S_NUM_POINTS];
 static NN_DIGIT s_mask[S_NUM_MASKS];
 static curve_params_t* param;
-#else
+#else /* defined(SLIDING_WIN) */
 /* precomputed array of public key(used in verification) for
  * sliding window method.
  */
@@ -208,7 +208,7 @@ ecdsa_init(point_t * pb_key)
 #ifdef SHAMIR_TRICK
   param = ecc_get_param();
   shamir_init(pb_key, pqBaseArray);
-#else
+#else /* defined(SLIDING_WIN) */
   /* precompute the array of public key for sliding window method */
   ecc_win_precompute(pb_key, qBaseArray);
 #endif /* SHAMIR_TRICK */
