@@ -218,9 +218,9 @@ int ecc_ecdh_from_host(NN_DIGIT secret[NUMWORDS],
 
 	prng((uint8_t *)secret, NUMBYTES);
 
-	ecc_mul(&result, G, secret);
-	NN_Decode(result.x, NUMWORDS, point, NUMBYTES);
-	NN_Decode(result.y, NUMWORDS, point + NUMBYTES, NUMBYTES);
+	ecc_win_mul_base(&result, secret);
+	NN_Encode(point, NUMBYTES, result.x, NUMWORDS);
+	NN_Encode(point + NUMBYTES, NUMBYTES, result.y, NUMWORDS);
 
 	return 0;
 }
@@ -229,16 +229,15 @@ int ecc_ecdh_from_network(NN_DIGIT secret[NUMWORDS],
                           uint8_t point[2 * NUMBYTES],
                           uint8_t shared_secret[2 * NUMBYTES])
 {
-
 	point_t pub, result;
 
-	NN_Encode(point, NUMBYTES, pub.x, NUMWORDS);
-	NN_Encode(point + NUMBYTES, NUMBYTES, pub.y, NUMWORDS);
+	NN_Decode(pub.x, NUMWORDS, point, NUMBYTES);
+	NN_Decode(pub.y, NUMWORDS, point + NUMBYTES, NUMBYTES);
 
 	ecc_mul(&result, &pub, secret);
 
-	NN_Decode(result.x, NUMWORDS, shared_secret, NUMBYTES);
-	NN_Decode(result.y, NUMWORDS, shared_secret + NUMBYTES, NUMBYTES);
+	NN_Encode(shared_secret, NUMBYTES, result.x, NUMWORDS);
+	NN_Encode(shared_secret + NUMBYTES, NUMBYTES, result.y, NUMWORDS);
 
 	return 0;
 }
