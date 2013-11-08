@@ -95,7 +95,6 @@ int main(int argc, char * argv[])
 	c_str = data_to_c_array((unsigned char *)ser_pub_cert, sizeof(ser_pub_cert), "ser_pub_cert");
 	printf("%s\n", c_str);
 	free(c_str);
-	deserialize_pub_cert(ser_pub_cert, &cert.pub_cert);
 
 	serialize_cert(&cert, ser_cert);
 	c_str = data_to_c_array((unsigned char *)ser_cert, sizeof(ser_cert), "ser_cert");

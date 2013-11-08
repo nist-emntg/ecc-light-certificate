@@ -91,15 +91,15 @@ int verify_certificate_path(s_pub_certificate * cert_authority,
 int serialize_pub_cert(s_pub_certificate * src, uint8_t dst[PUB_CERT_SIZE])
 {
 	int offset = 0;
-	NN_Decode(src->pub.x, NUMWORDS, dst, NUMBYTES);
+	NN_Encode(dst, NUMBYTES, src->pub.x, NUMWORDS);
 	offset += NUMBYTES;
-	NN_Decode(src->pub.y, NUMWORDS, dst, NUMBYTES);
-	offset += 2 * NUMBYTES;
+	NN_Encode(dst + offset, NUMBYTES, src->pub.y, NUMWORDS);
+	offset += NUMBYTES;
 	memcpy(dst + offset, src->issuer, SHA256_DIGEST_LENGTH);
 	offset += SHA256_DIGEST_LENGTH;
-	NN_Decode(src->signature_r, NUMWORDS, dst + offset, NUMBYTES);
+	NN_Encode(dst + offset, NUMBYTES, src->signature_r, NUMWORDS);
 	offset += NUMBYTES;
-	NN_Decode(src->signature_s, NUMWORDS, dst + offset, NUMBYTES);
+	NN_Encode(dst + offset, NUMBYTES, src->signature_s, NUMWORDS);
 
 	return 0;
 }
@@ -107,17 +107,17 @@ int serialize_pub_cert(s_pub_certificate * src, uint8_t dst[PUB_CERT_SIZE])
 int serialize_cert(s_certificate * src, uint8_t dst[CERT_SIZE])
 {
 	int offset = 0;
-	NN_Decode(src->pub_cert.pub.x, NUMWORDS, dst, NUMBYTES);
+	NN_Encode(dst, NUMBYTES, src->pub_cert.pub.x, NUMWORDS);
 	offset += NUMBYTES;
-	NN_Decode(src->pub_cert.pub.y, NUMWORDS, dst, NUMBYTES);
-	offset += 2 * NUMBYTES;
+	NN_Encode(dst + offset, NUMBYTES, src->pub_cert.pub.y, NUMWORDS);
+	offset += NUMBYTES;
 	memcpy(dst + offset, src->pub_cert.issuer, SHA256_DIGEST_LENGTH);
 	offset += SHA256_DIGEST_LENGTH;
-	NN_Decode(src->pub_cert.signature_r, NUMWORDS, dst + offset, NUMBYTES);
+	NN_Encode(dst + offset, NUMBYTES, src->pub_cert.signature_r, NUMWORDS);
 	offset += NUMBYTES;
-	NN_Decode(src->pub_cert.signature_s, NUMWORDS, dst + offset, NUMBYTES);
+	NN_Encode(dst + offset, NUMBYTES, src->pub_cert.signature_s, NUMWORDS);
 	offset += NUMBYTES;
-	NN_Decode(src->secret, NUMWORDS, dst + offset, NUMBYTES);
+	NN_Encode(dst + offset, NUMBYTES, src->secret, NUMWORDS);
 
 	return 0;
 }
@@ -125,32 +125,32 @@ int serialize_cert(s_certificate * src, uint8_t dst[CERT_SIZE])
 int deserialize_pub_cert(uint8_t * src, s_pub_certificate * dst)
 {
 	int offset = 0;
-	NN_Encode(src, NUMBYTES, dst->pub.x, NUMWORDS);
+	NN_Decode(dst->pub.x, NUMWORDS, src, NUMBYTES);
 	offset += NUMBYTES;
-	NN_Encode(src + offset, NUMBYTES, dst->pub.y, NUMWORDS);
+	NN_Decode(dst->pub.y, NUMWORDS, src + offset, NUMBYTES);
 	offset += NUMBYTES;
 	memcpy(dst->issuer, src + offset, SHA256_DIGEST_LENGTH);
 	offset += SHA256_DIGEST_LENGTH;
-	NN_Encode(src + offset, NUMBYTES, dst->signature_r, NUMWORDS);
+	NN_Decode(dst->signature_r, NUMWORDS, src + offset, NUMBYTES);
 	offset += NUMBYTES;
-	NN_Encode(src + offset, NUMBYTES, dst->signature_s, NUMWORDS);
+	NN_Decode(dst->signature_s, NUMWORDS, src + offset, NUMBYTES);
 	return 0;
 }
 
 int deserialize_cert(uint8_t * src, s_certificate * dst)
 {
 	int offset = 0;
-	NN_Encode(src, NUMBYTES, dst->pub_cert.pub.x, NUMWORDS);
+	NN_Decode(dst->pub_cert.pub.x, NUMWORDS, src, NUMBYTES);
 	offset += NUMBYTES;
-	NN_Encode(src + offset, NUMBYTES, dst->pub_cert.pub.y, NUMWORDS);
+	NN_Decode(dst->pub_cert.pub.y, NUMWORDS, src + offset, NUMBYTES);
 	offset += NUMBYTES;
 	memcpy(dst->pub_cert.issuer, src + offset, SHA256_DIGEST_LENGTH);
 	offset += SHA256_DIGEST_LENGTH;
-	NN_Encode(src + offset, NUMBYTES, dst->pub_cert.signature_r, NUMWORDS);
+	NN_Decode(dst->pub_cert.signature_r, NUMWORDS, src + offset, NUMBYTES);
 	offset += NUMBYTES;
-	NN_Encode(src + offset, NUMBYTES, dst->pub_cert.signature_s, NUMWORDS);
+	NN_Decode(dst->pub_cert.signature_s, NUMWORDS, src + offset, NUMBYTES);
 	offset += NUMBYTES;
-	NN_Encode(src + offset, NUMBYTES, dst->secret, NUMWORDS);
+	NN_Decode(dst->secret, NUMWORDS, src + offset, NUMBYTES);
 
 	return 0;
 }
@@ -178,8 +178,8 @@ int certificate_ecdsa_sign(s_certificate * certificate,
 	ecdsa_sign(hash, signature_r, signature_s, certificate->secret);
 
 	/* convert the fields to the proper endianness */
-	NN_Decode(signature_r, NUMWORDS, signature, NUMBYTES);
-	NN_Decode(signature_s, NUMWORDS, signature + NUMBYTES, NUMBYTES);
+	NN_Encode(signature, NUMBYTES, signature_r, NUMWORDS);
+	NN_Encode(signature + NUMBYTES, NUMBYTES, signature_s, NUMWORDS);
 
 	return 0;
 }
@@ -193,8 +193,8 @@ int certificate_ecdsa_verify(s_pub_certificate * certificate,
 	uint8_t hash[SHA256_DIGEST_LENGTH];
 	NN_DIGIT signature_r[NUMWORDS], signature_s[NUMWORDS];
 
-	NN_Encode(signature, NUMBYTES, signature_r, NUMWORDS);
-	NN_Encode(signature + NUMBYTES, NUMBYTES, signature_s, NUMWORDS);
+	NN_Decode(signature_r, NUMWORDS, signature, NUMBYTES);
+	NN_Decode(signature_s, NUMWORDS, signature + NUMBYTES, NUMBYTES);
 
 	memset(hash, 0, SHA256_DIGEST_LENGTH);
 
@@ -248,7 +248,7 @@ int ecc_ecdh_derive_key(uint8_t shared_secret[2 * NUMBYTES],  uint8_t key[SHA256
 	SHA256_CTX c256;
 
 	SHA256_Init(&c256);
-	SHA256_Update(&c256, shared_secret, 2*NUMBYTES);
+	SHA256_Update(&c256, shared_secret, 2 * NUMBYTES);
 	SHA256_Final(key, &c256);
 
 	return 0;
