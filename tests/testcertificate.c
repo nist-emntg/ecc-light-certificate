@@ -54,7 +54,6 @@ int main(int argc, char * argv[])
 
 	/* perform some checks on the certificate */
 
-	printf("%d\n", verify_certificate(&issuer.pub_cert, &cert.pub_cert));
 	assert(verify_certificate(&issuer.pub_cert, &cert.pub_cert) == 0);
 
 	/* test against the wrong issuer */
