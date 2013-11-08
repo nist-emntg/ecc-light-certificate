@@ -15,12 +15,8 @@ int generate_certificate(s_certificate *out_cert)
 {
 	memset(out_cert, 0, sizeof(* out_cert));
 
-	do {
-		prng((unsigned char *)out_cert->secret, NUMBYTES);
-	} while (!ecc_is_valid_key(out_cert->secret));
-
-	ecc_gen_pub_key(out_cert->secret,
-	                &out_cert->pub_cert.pub);
+	ecc_gen_private_key(out_cert->secret);
+	ecc_gen_pub_key(out_cert->secret, &out_cert->pub_cert.pub);
 
 	return 0;
 }
@@ -33,15 +29,15 @@ int verify_certificate(s_pub_certificate * signer_cert,
 	SHA256_CTX c256;
 	uint8_t hash[SHA256_DIGEST_LENGTH];
 	/* fix the endianness */
-	uint8_t pub_x[KEYDIGITS], pub_y[KEYDIGITS];
-	NN_Encode(pub_x, sizeof(pub_x), signer_cert->pub.x, sizeof(signer_cert->pub.x) / NN_DIGIT_LEN);
-	NN_Encode(pub_y, sizeof(pub_y), signer_cert->pub.y, sizeof(signer_cert->pub.y) / NN_DIGIT_LEN);
+	uint8_t pub_x[NUMBYTES], pub_y[NUMBYTES];
+	NN_Encode(pub_x, NUMBYTES, signer_cert->pub.x, NUMWORDS);
+	NN_Encode(pub_y, NUMBYTES, signer_cert->pub.y, NUMWORDS);
 
 	memset(hash, 0, SHA256_DIGEST_LENGTH);
 
 	SHA256_Init(&c256);
-	SHA256_Update(&c256, pub_x, sizeof(pub_x));
-	SHA256_Update(&c256, pub_y, sizeof(pub_y));
+	SHA256_Update(&c256, pub_x, NUMBYTES);
+	SHA256_Update(&c256, pub_y, NUMBYTES);
 	SHA256_Update(&c256, (uint8_t *)signer_cert->issuer,
 	              sizeof(signer_cert->issuer));
 	SHA256_Final((uint8_t *) hash, &c256);
@@ -50,12 +46,12 @@ int verify_certificate(s_pub_certificate * signer_cert,
 		return -1; /* trusted certificate does not match the issuer certificate */
 	}
 
-	NN_Encode(pub_x, sizeof(pub_x), signer_cert->pub.x, sizeof(certificate->pub.x) / NN_DIGIT_LEN);
-	NN_Encode(pub_y, sizeof(pub_y), signer_cert->pub.y, sizeof(certificate->pub.y) / NN_DIGIT_LEN);
+	NN_Encode(pub_x, NUMBYTES, certificate->pub.x, NUMWORDS);
+	NN_Encode(pub_y, NUMBYTES, certificate->pub.y, NUMWORDS);
 
 	SHA256_Init(&c256);
-	SHA256_Update(&c256, pub_x, sizeof(pub_x));
-	SHA256_Update(&c256, pub_y, sizeof(pub_y));
+	SHA256_Update(&c256, pub_x, NUMBYTES);
+	SHA256_Update(&c256, pub_y, NUMBYTES);
 	SHA256_Update(&c256, (unsigned char*)certificate->issuer,
 	              sizeof(certificate->issuer));
 	SHA256_Final((uint8_t *) hash, &c256);
@@ -65,7 +61,7 @@ int verify_certificate(s_pub_certificate * signer_cert,
 	if (ecdsa_verify(hash,
 	                 certificate->signature_r,
 	                 certificate->signature_s,
-	                 &signer_cert->pub)) {
+	                 &signer_cert->pub) != 1) {
 		return -2; /* certificate signature is invalid */
 	}
 
@@ -177,6 +173,7 @@ int certificate_ecdsa_sign(s_certificate * certificate,
 	memset(signature_s, 0, NUMBYTES);
 
 
+	ecdsa_init(&certificate->pub_cert.pub);
 	/* sign the hash */
 	ecdsa_sign(hash, signature_r, signature_s, certificate->secret);
 
@@ -205,6 +202,7 @@ int certificate_ecdsa_verify(s_pub_certificate * certificate,
 	SHA256_Update(&c256, data, length);
 	SHA256_Final((uint8_t *) hash, &c256);
 
+	ecdsa_init(&certificate->pub);
 	if (ecdsa_verify(hash, signature_r, signature_s, &certificate->pub) != 1) {
 		return -1; /* signature is invalid */
 	}
@@ -266,13 +264,15 @@ void sign_certificate(s_certificate * signing_party,
 	uint8_t hash[SHA256_DIGEST_LENGTH];
 
 	/* convert the fields to the proper endianness */
-	NN_Decode(signing_party->pub_cert.pub.x, NUMWORDS, pub_x, NUMBYTES);
-	NN_Decode(signing_party->pub_cert.pub.y, NUMWORDS, pub_y, NUMBYTES);
+	NN_Encode(pub_x, NUMBYTES, signing_party->pub_cert.pub.x, NUMWORDS);
+	NN_Encode(pub_y, NUMBYTES, signing_party->pub_cert.pub.y, NUMWORDS);
+
+	memset(hash, 0, SHA256_DIGEST_LENGTH);
 
 	SHA256_Init(&c256);
-	SHA256_Update(&c256, pub_x, 32);
-	SHA256_Update(&c256, pub_y, 32);
-	SHA256_Update(&c256, (unsigned char*)signing_party->pub_cert.issuer,
+	SHA256_Update(&c256, pub_x, NUMBYTES);
+	SHA256_Update(&c256, pub_y, NUMBYTES);
+	SHA256_Update(&c256, (uint8_t *)signing_party->pub_cert.issuer,
 	              sizeof(signing_party->pub_cert.issuer));
 	SHA256_Final((uint8_t *) certificate->pub_cert.issuer, &c256);
 
@@ -280,16 +280,18 @@ void sign_certificate(s_certificate * signing_party,
 	memset(certificate->pub_cert.signature_s, 0, NUMBYTES);
 
 	/* convert the fields to the proper endianness */
-	NN_Decode(certificate->pub_cert.pub.x, NUMWORDS, pub_x, NUMBYTES);
-	NN_Decode(certificate->pub_cert.pub.y, NUMWORDS, pub_y, NUMBYTES);
+	NN_Encode(pub_x, NUMBYTES, certificate->pub_cert.pub.x, NUMWORDS);
+	NN_Encode(pub_y, NUMBYTES, certificate->pub_cert.pub.y, NUMWORDS);
 
 	/* compute hash first on the certificate whose signature fields are zeroed out */
 	SHA256_Init(&c256);
-	SHA256_Update(&c256, pub_x, 32);
-	SHA256_Update(&c256, pub_y, 32);
-	SHA256_Update(&c256, (unsigned char*)certificate->pub_cert.issuer,
+	SHA256_Update(&c256, pub_x, NUMBYTES);
+	SHA256_Update(&c256, pub_y, NUMBYTES);
+	SHA256_Update(&c256, (uint8_t *)certificate->pub_cert.issuer,
 	              sizeof(certificate->pub_cert.issuer));
 	SHA256_Final((uint8_t *) hash, &c256);
+
+	ecdsa_init(&signing_party->pub_cert.pub);
 
 	/* sign the hash */
 	ecdsa_sign(hash,
