@@ -5,13 +5,20 @@ CONTIKI=contiki
 WITH_UIP6=1
 UIP_CONF_IPV6=1
 
+DOMIAN_PARAMS=SECP192K1
+CURVE_DIR=ecc/curve-params
+
 CFLAGS+= -DUIP_CONF_IPV6_RPL \
 		 -DSHA2_USE_INTTYPES_H \
 		 -DWITH_SHA256 \
-		 -DSHAMIR_TRICK
+		 -DSECP192K1 \
+		 -DTHIRTYTWO_BIT_PROCESSOR \
+		 -DDOMIAN_PARAMS=$(DOMIAN_PARAMS)
 
-PROJECT_SOURCEFILES += ecc.c nn.c sha2.c certificate.c bit.c
-PROJECTDIRS += sha2 ecc certificate
+PROJECT_SOURCEFILES += ecc.c ecdsa.c nn.c sha2.c certificate.c bit.c
+PROJECTDIRS += sha2 ecc $(CURVE_DIR) certificate
+
+include ecc/curve-params/Makefile.curve_params
 
 # mc1322x is little endian only
 ifeq ($(TARGET),econotag)
