@@ -689,8 +689,8 @@ void ecc_gen_private_key(NN_DIGIT *PrivateKey)
           PrivateKey[ri] = 0;
         }
 
-      if (order_bit_len % 32 != 0) {
-          digit_mask = 0xffffffff >> (32 - order_bit_len % 32);
+      if (order_bit_len % NN_DIGIT_BITS != 0) {
+          digit_mask = MAX_NN_DIGIT >> (NN_DIGIT_BITS - order_bit_len % NN_DIGIT_BITS);
           PrivateKey[order_digit_len - 1] = PrivateKey[order_digit_len - 1] & digit_mask;
         }
       NN_ModSmall(PrivateKey, param.r, NUMWORDS);
