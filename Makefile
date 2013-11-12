@@ -5,17 +5,17 @@ CONTIKI=contiki
 WITH_UIP6=1
 UIP_CONF_IPV6=1
 
-DOMIAN_PARAMS=SECP192K1
+include Makefile.curve
 CURVE_DIR=ecc/curve-params
 
 CFLAGS+= -DUIP_CONF_IPV6_RPL \
 		 -DSHA2_USE_INTTYPES_H \
 		 -DWITH_SHA256 \
-		 -DSECP192K1 \
+		 -D$(DOMAIN_PARAMS) \
 		 -DTHIRTYTWO_BIT_PROCESSOR \
-		 -DDOMIAN_PARAMS=$(DOMIAN_PARAMS)
+		 -DDOMAIN_PARAMS=$(DOMAIN_PARAMS)
 
-PROJECT_SOURCEFILES += ecc.c ecdsa.c nn.c sha2.c certificate.c bit.c
+PROJECT_SOURCEFILES += ecc.c ecdsa.c nn.c sha2.c certificate.c
 PROJECTDIRS += sha2 ecc $(CURVE_DIR) certificate
 
 include ecc/curve-params/Makefile.curve_params

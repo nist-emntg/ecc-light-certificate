@@ -1,18 +1,17 @@
-DOMIAN_PARAMS=SECP192K1
+include ../Makefile.curve
 CURVE_DIR=../ecc/curve-params
 
 CC=gcc
 CFLAGS=-g -Wall -DSHA2_USE_INTTYPES_H -DWITH_SHA256 \
 	   -DHAVE_ASSERT_H \
-	   -DSECP192K1 \
+	   -D$(DOMAIN_PARAMS) \
 	   -DTHIRTYTWO_BIT_PROCESSOR \
-	   -DDOMIAN_PARAMS=$(DOMIAN_PARAMS)
+	   -DDOMAIN_PARAMS=$(DOMAIN_PARAMS)
 
 INCLUDEDIR=-I../ecc -I../sha2 -I../certificate
 EXT_SOURCES=../ecc/ecc.c ../ecc/nn.c ../ecc/ecdsa.c \
 			../sha2/sha2.c \
-			../certificate/certificate.c \
-			../certificate/bit.c
+			../certificate/certificate.c
 
 include ../ecc/curve-params/Makefile.curve_params
 
