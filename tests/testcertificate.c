@@ -19,8 +19,7 @@ int main(int argc, char * argv[])
 	s_certificate cert_deserialized;
 	s_certificate cert2;
 
-	uint32_t array1[CERT_SIZE / sizeof(uint32_t)], array3[CERT_SIZE / sizeof(uint32_t)];
-	uint8_t array2[CERT_SIZE];
+	uint8_t array[CERT_SIZE] = { 0 };
 
 	uint8_t ser_cert[CERT_SIZE];
 	uint8_t ser_pub_cert[PUB_CERT_SIZE];
@@ -108,18 +107,6 @@ int main(int argc, char * argv[])
 	assert(memcmp(&cert, &cert_deserialized, sizeof(s_certificate)) == 0);
 
 	/**
-	 * Test byte endianness conversion
-	 */
-
-	for (i = 0; i < CERT_SIZE / sizeof(uint32_t); i++)
-		array1[i] = i;
-	/* convert back and forth */
-	uint32_array_to_uint8_be(array1, CERT_SIZE, array2);
-	uint8be_array_to_uint32_host(array2, CERT_SIZE, array3);
-	/* array1 and array3 must be equal */
-	assert(memcmp(array1, array3, CERT_SIZE) == 0);
-
-	/**
 	 * Signature tests
 	 */
 	certificate_ecdsa_sign(&cert,
@@ -134,8 +121,8 @@ int main(int argc, char * argv[])
 	                                signature) == 0);
 	/* try with the wrong data */
 	assert(certificate_ecdsa_verify(&cert.pub_cert,
-	                                array2,
-	                                sizeof(array2),
+	                                array,
+	                                sizeof(array),
 	                                signature) < 0);
 	/* try with a wrong signature */
 	signature[0] ^=0xFF;
