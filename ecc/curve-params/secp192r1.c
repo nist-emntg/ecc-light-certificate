@@ -4,10 +4,10 @@
 #define TRUE 1
 #define FALSE 0
 
-void 
+void
 get_curve_param(curve_params_t *para)
 {
-    
+
 #ifdef EIGHT_BIT_PROCESSOR
      //init parameters
     //prime
@@ -39,7 +39,7 @@ get_curve_param(curve_params_t *para)
 
     para->omega[0] = 0x01;
     para->omega[8] = 0x01;
-    
+
     //cure that will be used
     //a
     para->E.a[24] =  0x0;
@@ -67,10 +67,10 @@ get_curve_param(curve_params_t *para)
     para->E.a[2] =  0xFF;
     para->E.a[1] =  0xFF;
     para->E.a[0] =  0xFC;
-    
+
     para->E.a_minus3 = TRUE;
     para->E.a_zero = FALSE;
-    
+
     //b
     para->E.b[24] =  0x0;
     para->E.b[23] =  0x64;
@@ -124,7 +124,7 @@ get_curve_param(curve_params_t *para)
     para->G.x[2] =  0xFF;
     para->G.x[1] =  0x10;
     para->G.x[0] =  0x12;
-	
+
     para->G.y[24] =  0x0;
     para->G.y[23] =  0x07;
     para->G.y[22] =  0x19;
@@ -150,7 +150,7 @@ get_curve_param(curve_params_t *para)
     para->G.y[2] =  0x79;
     para->G.y[1] =  0x48;
     para->G.y[0] =  0x11;
-	
+
     //prime divide the number of points
     para->r[24] = 0x00;
     para->r[23] = 0xFF;
@@ -176,10 +176,10 @@ get_curve_param(curve_params_t *para)
     para->r[3] = 0xB4;
     para->r[2] = 0xD2;
     para->r[1] = 0x28;
-    para->r[0] = 0x31;	
-     
+    para->r[0] = 0x31;
+
     /* EIGHT_BIT_PROCESSOR */
-#elifdef SIXTEEN_BIT_PROCESSOR
+#elif defined(SIXTEEN_BIT_PROCESSOR)
 
     //init parameters
     //prime
@@ -196,10 +196,10 @@ get_curve_param(curve_params_t *para)
     para->p[2] = 0xFFFF;
     para->p[1] = 0xFFFF;
     para->p[0] = 0xFFFF;
-    
+
     memset(para->omega, 0, NUMWORDS*NN_DIGIT_LEN);
     para->omega[0] = 0x0001;
-    para->omega[4] = 0x0001;     
+    para->omega[4] = 0x0001;
     //cure that will be used
     //a
     memset(para->E.a, 0, NUMWORDS*NN_DIGIT_LEN);
@@ -215,10 +215,10 @@ get_curve_param(curve_params_t *para)
     para->E.a[2] =  0xFFFF;
     para->E.a[1] =  0xFFFF;
     para->E.a[0] =  0xFFFC;
-         
+
     para->E.a_minus3 = TRUE;
     para->E.a_zero = FALSE;
-    
+
     //b
     memset(para->E.b, 0, NUMWORDS*NN_DIGIT_LEN);
     para->E.b[11] =  0x6421;
@@ -233,7 +233,7 @@ get_curve_param(curve_params_t *para)
     para->E.b[2] =  0xDEEC;
     para->E.b[1] =  0xC146;
     para->E.b[0] =  0xB9B1;
-     
+
     //base point
     memset(para->G.x, 0, NUMWORDS*NN_DIGIT_LEN);
     para->G.x[11] =  0x188D;
@@ -262,7 +262,7 @@ get_curve_param(curve_params_t *para)
     para->G.y[2] =  0x77A1;
     para->G.y[1] =  0x1E79;
     para->G.y[0] =  0x4811;
-    	
+
     //prime divide the number of points
     memset(para->r, 0, NUMWORDS*NN_DIGIT_LEN);
     para->r[11] = 0xFFFF;
@@ -276,10 +276,10 @@ get_curve_param(curve_params_t *para)
     para->r[3] = 0x146B;
     para->r[2] = 0xC9B1;
     para->r[1] = 0xB4D2;
-    para->r[0] = 0x2831;	
-          
+    para->r[0] = 0x2831;
+
    /* SIXTEEN_BIT_PROCESSOR */
-#elifdef THIRTYTWO_BIT_PROCESSOR
+#elif defined(THIRTYTWO_BIT_PROCESSOR)
 
     //init parameters
     //prime
@@ -290,10 +290,10 @@ get_curve_param(curve_params_t *para)
     para->p[2] = 0xFFFFFFFE;
     para->p[1] = 0xFFFFFFFF;
     para->p[0] = 0xFFFFFFFF;
-    
+
     memset(para->omega, 0, NUMWORDS*NN_DIGIT_LEN);
     para->omega[0] = 0x0000001;
-    para->omega[2] = 0x0000001;     
+    para->omega[2] = 0x0000001;
     //cure that will be used
     //a
     memset(para->E.a, 0, NUMWORDS*NN_DIGIT_LEN);
@@ -303,10 +303,10 @@ get_curve_param(curve_params_t *para)
     para->E.a[2] =  0xFFFFFFFE;
     para->E.a[1] =  0xFFFFFFFF;
     para->E.a[0] =  0xFFFFFFFC;
-         
+
     para->E.a_minus3 = TRUE;
     para->E.a_zero = FALSE;
-    
+
     //b
     memset(para->E.b, 0, NUMWORDS*NN_DIGIT_LEN);
     para->E.b[5] =  0x64210519;
@@ -315,7 +315,7 @@ get_curve_param(curve_params_t *para)
     para->E.b[2] =  0x72243049;
     para->E.b[1] =  0xFEB8DEEC;
     para->E.b[0] =  0xC146B9B1;
-     
+
     //base point
     memset(para->G.x, 0, NUMWORDS*NN_DIGIT_LEN);
     para->G.x[5] =  0x188DA80E;
@@ -332,7 +332,7 @@ get_curve_param(curve_params_t *para)
     para->G.y[2] =  0x6B24CDD5;
     para->G.y[1] =  0x73F977A1;
     para->G.y[0] =  0x1E794811;
-    	
+
     //prime divide the number of points
     memset(para->r, 0, NUMWORDS*NN_DIGIT_LEN);
     para->r[5] = 0xFFFFFFFF;
@@ -345,30 +345,30 @@ get_curve_param(curve_params_t *para)
 #endif /* THIRTYTWO_BIT_PROCESSOR */
 
   }
-  
-NN_UINT 
+
+NN_UINT
 omega_mul(NN_DIGIT *a, NN_DIGIT *b, NN_DIGIT *omega, NN_UINT digits)
 {
-  
+
 #ifdef EIGHT_BIT_PROCESSOR
 
     NN_Assign(a, b, digits);
     NN_Add(a+8, a+8, b, digits+1);
     return (digits+9);
-    /* EIGHT_BIT_PROCESSOR */  
-#elifdef SIXTEEN_BIT_PROCESSOR
+    /* EIGHT_BIT_PROCESSOR */
+#elif defined(SIXTEEN_BIT_PROCESSOR)
 
     NN_Assign(a, b, digits);
     NN_Add(a+4, a+4, b, digits+1);
     return (digits+5);
 
-    /* SIXTEEN_BIT_PROCESSOR */  
-#elifdef THIRTYTWO_BIT_PROCESSOR
+    /* SIXTEEN_BIT_PROCESSOR */
+#elif defined(THIRTYTWO_BIT_PROCESSOR)
 
     NN_Assign(a, b, digits);
     NN_Add(&a[2], &a[2], b, digits+1);
     return (digits+3);
-  
+
 #endif /* THIRTYTWO_BIT_PROCESSOR */
-  
+
 }

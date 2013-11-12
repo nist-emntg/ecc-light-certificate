@@ -4,10 +4,10 @@
 #define TRUE 1
 #define FALSE 0
 
-void 
+void
 get_curve_param(curve_params_t *para)
 {
-    
+
 #ifdef EIGHT_BIT_PROCESSOR
    //init parameters
     //prime
@@ -38,14 +38,14 @@ get_curve_param(curve_params_t *para)
     para->omega[1] = 0x53;
     para->omega[4] = 0x01;
 
-    
+
     //cure that will be used
     //a
     memset(para->E.a, 0, NUMWORDS);
-	
+
     para->E.a_minus3 = FALSE;
     para->E.a_zero = TRUE;
-    
+
     //b
     memset(para->E.b, 0, NUMWORDS);
     para->E.b[0] = 0x07;
@@ -94,7 +94,7 @@ get_curve_param(curve_params_t *para)
     para->G.y[2] =  0x3C;
     para->G.y[1] =  0x4F;
     para->G.y[0] =  0xEE;
-	
+
     //prime divide the number of points
     para->r[20] = 0x01;
     para->r[19] = 0x0;
@@ -117,9 +117,9 @@ get_curve_param(curve_params_t *para)
     para->r[2] = 0x16;
     para->r[1] = 0xB6;
     para->r[0] = 0xB3;
-     
+
     /* EIGHT_BIT_PROCESSOR */
-#elifdef SIXTEEN_BIT_PROCESSOR
+#elif defined(SIXTEEN_BIT_PROCESSOR)
 
     //init parameters
     //prime
@@ -140,14 +140,14 @@ get_curve_param(curve_params_t *para)
     para->omega[0] = 0x538D;
     para->omega[2] = 0x0001;
 
-    
+
     //cure that will be used
     //a
     memset(para->E.a, 0, NUMWORDS*NN_DIGIT_LEN);
-	
+
     para->E.a_minus3 = FALSE;
     para->E.a_zero = TRUE;
-    
+
     //b
     memset(para->E.b, 0, NUMWORDS*NN_DIGIT_LEN);
     para->E.b[0] = 0x0007;
@@ -164,7 +164,7 @@ get_curve_param(curve_params_t *para)
     para->G.x[2] = 0xF4F5;
     para->G.x[1] = 0xDD4D;
     para->G.x[0] = 0x7EBB;
-    
+
     para->G.y[10] = 0x0000;
     para->G.y[9] =  0x938C;
     para->G.y[8] =  0xF935;
@@ -176,7 +176,7 @@ get_curve_param(curve_params_t *para)
     para->G.y[2] =  0x33C3;
     para->G.y[1] =  0xF03C;
     para->G.y[0] =  0x4FEE;
-    	
+
     //prime divide the number of points
     para->r[10] = 0x0001;
     para->r[9]  = 0x0000;
@@ -189,9 +189,9 @@ get_curve_param(curve_params_t *para)
     para->r[2]  = 0xAB9A;
     para->r[1]  = 0xCA16;
     para->r[0]  = 0xB6B3;
-          
+
    /* SIXTEEN_BIT_PROCESSOR */
-#elifdef THIRTYTWO_BIT_PROCESSOR
+#elif defined(THIRTYTWO_BIT_PROCESSOR)
 
    //init parameters
     //prime
@@ -211,7 +211,7 @@ get_curve_param(curve_params_t *para)
     memset(para->E.a, 0, NUMWORDS*NN_DIGIT_LEN);
     para->E.a_minus3 = FALSE;
     para->E.a_zero = TRUE;
-    
+
     //b
     memset(para->E.b, 0, NUMWORDS*NN_DIGIT_LEN);
     para->E.b[0] = 0x00000007;
@@ -223,14 +223,14 @@ get_curve_param(curve_params_t *para)
     para->G.x[2] = 0xA4019E76;
     para->G.x[1] = 0x3036F4F5;
     para->G.x[0] = 0xDD4D7EBB;
-    
+
     para->G.y[5] =  0x00000000;
     para->G.y[4] =  0x938CF935;
     para->G.y[3] =  0x318FDCED;
     para->G.y[2] =  0x6BC28286;
     para->G.y[1] =  0x531733C3;
     para->G.y[0] =  0xF03C4FEE;
-    	
+
     //prime divide the number of points
     para->r[5] = 0x00000001;
     para->r[4] = 0x00000000;
@@ -242,11 +242,11 @@ get_curve_param(curve_params_t *para)
 #endif /* THIRTYTWO_BIT_PROCESSOR */
 
   }
-  
-NN_UINT 
+
+NN_UINT
 omega_mul(NN_DIGIT *a, NN_DIGIT *b, NN_DIGIT *omega, NN_UINT digits)
 {
-  
+
 #ifdef EIGHT_BIT_PROCESSOR
 
 #ifdef CPU_AVR
@@ -255,7 +255,7 @@ omega_mul(NN_DIGIT *a, NN_DIGIT *b, NN_DIGIT *omega, NN_UINT digits)
       n_d = digits/4;
     else
       n_d = digits/4 + 1;
-    
+
     //r2~r10
     //r11~r14
     //r15 c[0]
@@ -410,24 +410,24 @@ omega_mul(NN_DIGIT *a, NN_DIGIT *b, NN_DIGIT *omega, NN_UINT digits)
     a[digits] += NN_AddDigitMult(a, a, omega[0], b, digits);
     a[digits+1] += NN_AddDigitMult(&a[1], &a[1], omega[1], b, digits);
     NN_Add(&a[4], &a[4], b, digits+1);
-    return (digits+5); 
-    
+    return (digits+5);
+
 #endif
-    /* EIGHT_BIT_PROCESSOR */  
-#elifdef SIXTEEN_BIT_PROCESSOR
+    /* EIGHT_BIT_PROCESSOR */
+#elif defined(SIXTEEN_BIT_PROCESSOR)
 
     //memset(a, 0, digits*NN_DIGIT_LEN);
     a[digits] += NN_AddDigitMult(a, a, omega[0], b, digits);
     NN_Add(&a[2], &a[2], b, digits+1);
     return (digits+3);
 
-    /* SIXTEEN_BIT_PROCESSOR */  
-#elifdef THIRTYTWO_BIT_PROCESSOR
+    /* SIXTEEN_BIT_PROCESSOR */
+#elif defined(THIRTYTWO_BIT_PROCESSOR)
 
     a[digits] += NN_AddDigitMult(a, a, omega[0], b, digits);
     NN_Add(&a[1], &a[1], b, digits+1);
     return (digits+2);
-  
+
 #endif /* THIRTYTWO_BIT_PROCESSOR */
-  
+
 }
