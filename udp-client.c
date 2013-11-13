@@ -41,7 +41,6 @@
 #include <string.h>
 
 #include "certificate.h"
-#include "bit.h"
 
 #define UDP_CLIENT_PORT 8765
 #define UDP_SERVER_PORT 5678

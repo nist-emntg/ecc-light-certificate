@@ -1,5 +1,4 @@
 #include "certificate.h"
-#include "bit.h"
 #include "prng.h"
 #include "ecdsa.h"
 
