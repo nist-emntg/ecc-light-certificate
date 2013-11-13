@@ -16,7 +16,6 @@ EXT_SOURCES=../ecc/ecc.c ../ecc/nn.c ../ecc/ecdsa.c \
 include ../ecc/curve-params/Makefile.curve_params
 
 EXT_OBJ=$(EXT_SOURCES:.c=.o)
-LDLIBS=
 EXECUTABLE= convert-cert-to-array gen-cert  sign-cert
 
 all: $(EXT_SOURCES) $(EXECUTABLE)
