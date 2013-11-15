@@ -213,11 +213,8 @@ int ecc_ecdh_from_host(NN_DIGIT secret[NUMWORDS],
                        uint8_t point[2 * NUMBYTES])
 {
 	point_t result;
-	point_t * G = ecc_get_base_p();
-
-	prng((uint8_t *)secret, NUMBYTES);
-
-	ecc_win_mul_base(&result, secret);
+	ecc_gen_private_key(secret);
+	ecc_gen_pub_key(secret, &result);
 	NN_Encode(point, NUMBYTES, result.x, NUMWORDS);
 	NN_Encode(point + NUMBYTES, NUMBYTES, result.y, NUMWORDS);
 
