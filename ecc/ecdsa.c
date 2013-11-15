@@ -12,7 +12,7 @@
  *
  */
 #include "ecdsa.h"
-//#include "lib/rand.h"
+#include "prng.h"
 #include <stdlib.h>
 
 #include <string.h>
@@ -61,26 +61,6 @@ static point_t qBaseArray[NUM_POINTS];
 static NN_DIGIT order[NUMWORDS];
 static point_t * baseP;
 
-
-  //generate random natural number a[length]
-void
-gen_random(NN_DIGIT *a, uint8_t length)
-{
-/*
-  a[5] = 0x00000000;
-  a[4] = 0x7b012db7;
-  a[3] = 0x681a3f28;
-  a[2] = 0xb9185c8b;
-  a[1] = 0x2ac5d528;
-  a[0] = 0xdecd52da;
-  uint8_t ri;
-*/
-  int ri;
-  for(ri=0; ri<length; ri++) {
-    a[ri] = ((uint32_t)rand() << 16)^((uint32_t)rand());
-  }
-
-}
 
 /*---------------------------------------------------------------------------*/
 #ifdef SHAMIR_TRICK

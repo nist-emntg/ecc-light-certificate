@@ -12,6 +12,7 @@
  *
  */
 #include "ecc.h"
+#include "prng.h"
 
 #define TRUE  1
 #define FALSE 0
@@ -680,10 +681,7 @@ void ecc_gen_private_key(NN_DIGIT *PrivateKey)
   order_digit_len = NN_Digits(param.r, NUMWORDS);
 
   while (!done) {
-
-      for (ri = 0; ri < order_digit_len; ri++) {
-          PrivateKey[ri] = rand(); /* TODO: use something more architecture agnostic */
-        }
+	  prng((uint8_t *)PrivateKey, order_digit_len * sizeof(NN_Digits));
 
       for (ri = order_digit_len; ri < NUMWORDS; ri++) {
           PrivateKey[ri] = 0;
