@@ -9,9 +9,13 @@ TOOL_PATH=../tools
 
 # generate certificate
 $TOOL_PATH/gen-cert cacert
+sleep 1
 $TOOL_PATH/gen-cert cacert2
+sleep 1
 $TOOL_PATH/gen-cert client1 cacert
+sleep 1
 $TOOL_PATH/gen-cert server cacert
+sleep 1
 $TOOL_PATH/gen-cert client2 cacert2
 
 # print the corresponding C code
