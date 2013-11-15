@@ -59,11 +59,11 @@ static point_t qBaseArray[NUM_POINTS];
 #endif /* SHAMIR_TRICK */
 
 static NN_DIGIT order[NUMWORDS];
-static point_t * baseP;
 
 
 /*---------------------------------------------------------------------------*/
 #ifdef SHAMIR_TRICK
+static point_t * baseP;
 /**
  * \brief             Shamir trick init.
  */
@@ -335,4 +335,4 @@ ecdsa_verify(uint8_t sha256sum[SHA256_DIGEST_LENGTH], NN_DIGIT *r, NN_DIGIT *s, 
 
 /**
  * @}
- */
+     */

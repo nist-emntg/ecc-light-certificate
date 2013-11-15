@@ -699,23 +699,6 @@ void ecc_gen_private_key(NN_DIGIT *PrivateKey)
     }
 }
 
-/*---------------------------------------------------------------------------*/
-static int isGreater(const NN_DIGIT *A, const NN_DIGIT *B, uint8_t length){
-        int i;
-        for (i = length / NN_DIGIT_LEN - 1; i >= 0; --i)
-        {
-                if(A[i] > B[i])
-                        return 1;
-                if(A[i] < B[i])
-                        return -1;
-        }
-        return 0;
-}
-/*---------------------------------------------------------------------------*/
-int ecc_is_valid_key(const NN_DIGIT * priv_key)
-{
-        return isGreater(param.r, priv_key, NUMBYTES) == 1;
-}
 
 /**
  * @}
