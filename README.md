@@ -3,7 +3,7 @@ Simple ECC certificate format
 
 This code implements a simple certificate format based on ECC. The purpose of
 this type of certificate is to be very light to transport and have a very small
-memory footprint. Currently, a single certificate is encoded on 168 bytes (for
+memory footprint. Currently, a single certificate is encoded on less than  144 bytes (for
 its public components).
 
 In order to further minimize the memory footprint, a node's certificate is
@@ -33,10 +33,10 @@ Both variants contains:
 
 In order to decrease the size and complexity, a few parameters are omitted or
 implicit in the structure:
-- curve definition is secp256r1
+- curve definition is fixed at compile time
 - base point is omitted
 - no data encoding (ASN.1, DER, etc.)
-- unless specified otherwise, data are store and transported in the big endian ordering
+- unless specified otherwise, data are stored and transported in the big endian ordering
 
 The certificate path is currently limited to
 
