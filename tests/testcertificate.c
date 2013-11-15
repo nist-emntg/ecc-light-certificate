@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "bit.h"
 #include "ecc.h"
 
 int main(int argc, char * argv[])
