@@ -261,13 +261,13 @@ test_crypto(void)
 		 */
 
 		PRINTF("ECDH first message\n");
-		/* send g^k
+		/* send d.G=Q
 		 * (k is variable secret here) */
 		ecc_ecdh_from_host(secret, point);
 		PRINTF("done - ECDH first message\n");
 
 		PRINTF("ECDH second message\n");
-		/* compute g^(k+j) (this is the shared secret) */
+		/* compute d'.Q (this is the shared secret) */
 		ecc_ecdh_from_network(secret, point, shared_secret);
 		PRINTF("done - ECDH second message\n");
 
