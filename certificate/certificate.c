@@ -213,6 +213,8 @@ int ecc_ecdh_from_host(NN_DIGIT secret[NUMWORDS],
                        uint8_t point[2 * NUMBYTES])
 {
 	point_t result;
+	memset(secret, 0, NUMBYTES);
+	memset(&result, 0, sizeof(result));
 	ecc_gen_private_key(secret);
 	ecc_gen_pub_key(secret, &result);
 	NN_Encode(point, NUMBYTES, result.x, NUMWORDS);
@@ -227,6 +229,8 @@ int ecc_ecdh_from_network(NN_DIGIT secret[NUMWORDS],
 {
 	point_t pub, result;
 
+	memset(&pub, 0, sizeof(pub));
+	memset(&result, 0, sizeof(result));
 	NN_Decode(pub.x, NUMWORDS, point, NUMBYTES);
 	NN_Decode(pub.y, NUMWORDS, point + NUMBYTES, NUMBYTES);
 
