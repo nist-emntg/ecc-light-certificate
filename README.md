@@ -1,25 +1,26 @@
-Simple ECC certificate format
-=============================
+A simple ECC certificate library
+================================
 
 This code implements a simple certificate format based on ECC. The purpose of
 this type of certificate is to be very light to transport and have a very small
-memory footprint. Currently, a single certificate is encoded on less than  144 bytes (for
-its public components).
+memory footprint. Currently, a single certificate is encoded on less than  144
+bytes (for its public components).
 
 In order to further minimize the memory footprint, a node's certificate is
 encoded in a C array and embedded within the code. Consequently, there is no
 need to read the certificate from the ROM, for example.
 
-The code here is presented as an example for the Contiki OS, but can easily be
-ported to other systems.
+The code here is presented as an example for the [Contiki OS][contiki], but can
+easily be ported to other systems (as long as these systems support a C
+compiler).
 
 Design choices
 --------------
 
-Two variants of a certificate exists:
-- the private certificate remains on the node and is used for signature
-  generation
-- the public certificate is the one that is presented to other nodes and
+Two types of certificates exist:
+- *private certificate*:  this certificate remains on the node and is used for
+  signature generation
+- *public certificate*: this certificate is presented to other nodes and
   transported over the air
 
 The private certificate contains the secret that helped deriving
@@ -38,7 +39,6 @@ implicit in the structure:
 - no data encoding (ASN.1, DER, etc.)
 - unless specified otherwise, data are stored and transported in the big endian ordering
 
-The certificate path is currently limited to
 
 Provisioning a node/data structures
 -----------------------------------
@@ -65,18 +65,10 @@ certificate was signed by a trust anchor, this list is empty.
 For practical purposes, the certificates in this list must be directly encoded
 in the format they are transported over the wire.
 
-Operations on the certificate
------------------------------
+How to use
+----------
 
-### Generating a certificate
-
-### Verifying a certificate path
-
-### Signing a message
-
-### Verifying a message
-
-### Public certificate network to internal
+TBD
 
 Standalone tools
 ----------------
@@ -135,33 +127,27 @@ ECDH exchange and provide additional helper functions.
 Here is an example of code:
 TBD
 
-Note that this code only works if there is two nodes communicating together.
+Note that this code only works when two nodes communicating are together.
 
 External libraries embedded
 ---------------------------
 
-These libraries have been extracted from the TinyDTLS source code. We tried to
-give proper credit to both the people who initially wrote the code and the
-people who extended it to work with TinyDTLS.
+Some of these libraries have been extracted from the [TinyDTLS][] source code.
+This means that the code we use might different from the original as it as been
+modified to work with TinyDTLS.
 
 ### SHA-256 implementation
 
 Initial implementation from [Aaron Gifford](http://www.aarongifford.com/computers/sha.html).
-Modified by unknown to enable/disable SHA-384 and SHA-512 at build time.
+Modified by an unknown person to enable/disable SHA-384 and SHA-512 at build time.
 
 ### ECC implementation
 
-    This is a efficient ECC implementation on the secp256r1 curve for 32 Bit CPU
-    architectures. It provides basic operations on the secp256r1 curve and support
-    for ECDH and ECDSA.
+We use a slightly modified version of [ContikiECC][] (which itself is a C port of the [TinyECC][] library).
 
-Initial code is from Chris K Cockrum.
-
-Modification for TinyDTLS were done by:
-* Jens Trillmann
-* Marc Müller-Weinhardt
-* Lars Schmertmann
-* Hauke Mehrtens
+We previously used the ECC implementation used in [TinyDTLS][] (initially from
+Chris K. Cockrum) but found it to be too slow. However, this implementation was
+also smaller 5kB of ROM compared to 8.5kB with the current library.
 
 Notes
 -----
@@ -170,6 +156,8 @@ Notes
   This is because this code is intended to run on standalone devices and sensor
   nodes  don't have the capability to determine if a certificate must be
   trusted (unless there is a path to a Certificate Authority).
+* the choice of the ECC curve name is hardcoded in the file *Makefile.curve*.
+  Make sure that all the code is compiled with the same curve parameters.
 
 Contributors
 ------------
@@ -202,4 +190,7 @@ this software.
 </em>
 
 
-
+[contiki]: https://github.com/contiki-os/contiki
+[ContikiECC]: http://score.ucsc.lk/projects/contikiecc
+[TinyDTLS]: http://tinydtls.sourceforge.net/
+[TinyECC]: http://discovery.csc.ncsu.edu/software/TinyECC/
