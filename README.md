@@ -49,7 +49,7 @@ One or more certificates can serve as trust anchors and be stored on a node.
 These certificates are used for establishing a certificate path when validating
 others node certificate.
 
-Truss anchors are stored in a way that enable it to be processed without any
+Trust anchors are stored in a way that enable it to be processed without any
 endianness conversion.
 
 # Node's own certificate
@@ -121,7 +121,7 @@ Using ECDH to exchange a key
 ----------------------------
 
 ECDH enables two party to exchange a secret. Here, we use an hardcoded
-generator point (ecc_g_point_x and ecc_g_point_y in the code) to perform the
+generator point (param.G in the code) to perform the
 ECDH exchange and provide additional helper functions.
 
 Here is an example of code:
@@ -147,7 +147,7 @@ We use a slightly modified version of [ContikiECC][] (which itself is a C port o
 
 We previously used the ECC implementation used in [TinyDTLS][] (initially from
 Chris K. Cockrum) but found it to be too slow. However, this implementation was
-also smaller 5kB of ROM compared to 8.5kB with the current library.
+also had a smaller footprint (~7kB of ROM compared to ~8.5kB with ContikiECC).
 
 Notes
 -----
@@ -178,7 +178,9 @@ Pursuant to title 15 United States Code Section 105, works of NIST
 employees are not subject to copyright protection in the United States
 and are considered to be in the public domain.
 As a result, a formal license is not needed to use this software.
+</em>
 
+<em>
 This software is provided "AS IS."
 NIST MAKES NO WARRANTY OF ANY KIND, EXPRESS, IMPLIED
 OR STATUTORY, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF
