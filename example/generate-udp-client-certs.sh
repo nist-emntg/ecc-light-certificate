@@ -18,6 +18,7 @@ $TOOL_PATH/gen-cert client2 cacert
 $TOOL_PATH/convert-cert-to-array -p cacert raw_cacert
 $TOOL_PATH/convert-cert-to-array cert raw_cert
 $TOOL_PATH/convert-cert-to-array -p client2 raw_client2
+$TOOL_PATH/convert-cert-to-array client2 raw_client2
 
 # you might want to comment the following line
 rm -f cacert cert client2
