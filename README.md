@@ -17,7 +17,7 @@ compiler).
 Design choices
 --------------
 
-Two types of certificates exist:
+We use two "flavors" of certificates:
 - *private certificate*:  this certificate remains on the node and is used for
   signature generation
 - *public certificate*: this certificate is presented to other nodes and
@@ -29,21 +29,48 @@ private certificate.
 
 Both variants contains:
 - X and Y coordinates on the curve (public parameters)
-- hash of the public certificate of the signing party
-- signature of the certificate using the signing party certificate
+- hash of the public certificate of the signing party (this is filled with zeros if there is no signing party)
+- signature of the certificate using the signing party certificate (this is filled with zeros if there is no signing party)
 
 In order to decrease the size and complexity, a few parameters are omitted or
-implicit in the structure:
+implicit:
 - curve definition is fixed at compile time
 - base point is omitted
 - no data encoding (ASN.1, DER, etc.)
 - unless specified otherwise, data are stored and transported in the big endian ordering
 
+Example of storage space requirements
+-------------------------------------
 
-Provisioning a node/data structures
------------------------------------
+Because of our design choice, storage requirements for our light certificates are minimal:
 
-# Trust anchors
+<table>
+<tr>
+<th>Curve name</th>
+<th>Pub. cert. size</th>
+<th>Priv. cert. size</th>
+</tr>
+<tr>
+<td>secp128r1</td>
+<td>112B</td>
+<td>132B</td>
+</tr>
+<tr>
+<td>secp160k1</td>
+<td>128B</td>
+<td>152B</td>
+</tr>
+<tr>
+<td>secp192k1</td>
+<td>144B</td>
+<td>172B</td>
+</tr>
+</table>
+
+Data structures required for provisioning a node
+------------------------------------------------
+
+### Trust anchors
 
 One or more certificates can serve as trust anchors and be stored on a node.
 These certificates are used for establishing a certificate path when validating
@@ -52,11 +79,11 @@ others node certificate.
 Trust anchors are stored in a way that enable it to be processed without any
 endianness conversion.
 
-# Node's own certificate
+### Node's own certificate
 
 A node stores its own private certificate.
 
-# Node's certificate path intermediate certificates
+### Node's certificate path intermediate certificates
 
 This is the list of all the certificates in the path from the node's own
 certificate to the trust anchor (both of them are omitted). If the node's
@@ -65,18 +92,92 @@ certificate was signed by a trust anchor, this list is empty.
 For practical purposes, the certificates in this list must be directly encoded
 in the format they are transported over the wire.
 
-How to use
-----------
+How to compile
+--------------
 
-TBD
+Upon retrieve the sources, you need to initialise the Contiki git submodule:
 
-Standalone tools
-----------------
+    git submodule init
+    git submodule update
+
+If you want to build the Contiki example, based on the *ipv6/rpl-udp* example,
+you can run the regular make command:
+
+    make
+
+If you want to build the example and the tests, you can run the following command:
+
+    make extra
+
+If you intend to build for a target different than native, say RedBee Econotag,
+you have to to specify the corresponding TARGET variable:
+
+    make TARGET=econotag
+
+Please note that only one ECC curve can be enabled at a time. You can change it
+by editing the *Makefile.curve* file. You then need to recompile all the code
+to use this new curve.
+
+Simplistic authentication protocol
+----------------------------------
+
+In order to illustrate the library, the Contiki udp-client and udp-server, as
+well as the standalone example-client and example-server, we implement a
+simplistic certificate-based authentication scheme.
+
+The scheme works as follows:
+![Simplistic authentication exchange](figures/authentication-exchange.png)
+
+Where:
+* G is the base point on the curve. It is a common parameter (i.e. hardcoded)
+to both the client (A) and the server (B).
+* *pubA* and *pubB* are respectively the client and the
+server’s public certificates.
+* *sigA* and *sigB* are respectively the client and the server’s signature
+  performed over the whole message using the private key associated to their
+  certificates.
+* *QA* and *QB* are ECDH ephemeral public keys.
+* *dA* and *dB* are ECDH ephemeral private keys.
+
+The scheme works in the following way:
+* upon receiving *m1* the server verifies that the
+public certificate *pubA* has been issued by a trusted
+certificate authority. Then it verifies the signature *sigA*.
+If the signature is valid, it computes the shared secret
+*dB.QA*.
+* upon receiving *m2* the client also verifies *pubB* and
+*sigB*. If both of them are valid, it computes the shared
+secret *dA.QB*.
+
+Note that this key exchange is just an example and is in no way robust to
+attacks (replay attacks would be trivial here).
+
+Using the examples
+------------------
+
+The library comes with one example client server in the *example* directory.
+The server listen by default on the IPv4 address 127.0.0.1 on the TCP port
+9999. It can be started with the following command:
+
+    ./example-server
+
+The client is started in an analogous manner:
+
+    ./example-client
+
+Upon a successful authentication, a shared secret is derived. All the client's
+input will then be transmitted to the server through a very robust XOR based
+encryption (using the shared secret as the key).
+
+
+Using the standalone tools
+--------------------------
 
 *gen-cert* and *sign-cert* work on certificates that are read and stored in
 "raw" format (dump of the C structure) inside files. When the certificate needs
 to be embedded into the code, the *convert-cert-to-carray* tool translates the
-raw certificate in a C array.
+raw certificate in a C array. This is useful for generating certificates on
+your computer and storing them in embedded devices.
 
 ### gen-cert
 
@@ -84,7 +185,7 @@ Generate a certificate.
 
     ./gen-cert outputfile [issuer]
 
-When the issuer is provided, the certificate will be signed by the issuer certificate.
+When the *issuer* is provided, the certificate will be signed by the issuer certificate.
 
 ### sign-cert
 
@@ -92,18 +193,19 @@ Sign a certificate with an other certificate.
 
     ./sign-cert certfile signing-party
 
-This will sign the certificate in "certfile" with the certificate in the signing-party.
+This will sign the certificate in *certfile* with the certificate in the *signing-party*.
 
 ### convert-cert-to-array
 
 Convert a dumped certificate into a C array (for inclusion within C code). Note
-that this operation serialized the certificate before printing.
+that this operation serialize the certificate before printing, it must be
+unserialized before use.
 
     ./convert-cert-to-array [-p] certfile varname
 
 The *-p* flag will export only the public portion of the certificate in the C array.
 
-Example of use (where "cert-file" is a file containing a raw certificate):
+Example of use (where *cert-file* is a file containing a raw certificate):
 
     > ./convert-cert-to-array -p cert-file mycert
     uint8_t mycert [168] = {50, 78, 28, 96, 1C, 73, 76, 7B, 43, 7E, 62, 3E, A9, C8,
@@ -116,7 +218,7 @@ Example of use (where "cert-file" is a file containing a raw certificate):
     C9, 24, 18, 41, 31, CF, 3D, EF, 7E, 0D, 3A, 60, 16, CD, 22, DD, 79, 02, 36, 58,
     C9, 36, 26, 2F, 76, BE, F8, 80, 0C, 5D, 00, 00, 00, 00};
 
-
+<!-->
 Using ECDH to exchange a key
 ----------------------------
 
@@ -128,6 +230,7 @@ Here is an example of code:
 TBD
 
 Note that this code only works when two nodes communicating are together.
+-->
 
 External libraries embedded
 ---------------------------
