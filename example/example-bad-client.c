@@ -100,8 +100,8 @@ int main(int argc, const char *argv[])
 		goto flush_and_exit;
 	}
 
-	/* send g^k
-	 * (k is variable secret here) */
+	/* send d.G
+	 * (d is variable secret here) */
 	ecc_ecdh_from_host(secret, point);
 
 	if (send(sockfd, point, sizeof(point), 0) == -1) {
@@ -137,7 +137,7 @@ int main(int argc, const char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	/* verify that the signature on g^j matches the server's certificate */
+	/* verify that the signature on d'.G matches the server's certificate */
 	if (recv(sockfd, signature, sizeof(signature), 0) == -1) {
 		perror("recv");
 		goto flush_and_exit;
@@ -150,10 +150,10 @@ int main(int argc, const char *argv[])
 		fprintf(stderr, "signature does not match");
 		goto flush_and_exit;
 	} else {
-		printf("(signature g^j is valid)\n");
+		printf("(signature d'.G is valid)\n");
 	}
 
-	/* compute g^(k+j) (this is the shared secret) */
+	/* compute d.d'.G (this is the shared secret) */
 	ecc_ecdh_from_network(secret, point, shared_secret);
 
 	/* derive a longer key */
