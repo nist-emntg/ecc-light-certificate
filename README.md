@@ -39,33 +39,6 @@ implicit:
 - no data encoding (ASN.1, DER, etc.)
 - unless specified otherwise, data are stored and transported in the big endian ordering
 
-Example of storage space requirements
--------------------------------------
-
-Because of our design choice, storage requirements for our light certificates are minimal:
-
-<table>
-<tr>
-<th>Curve name</th>
-<th>Pub. cert. size</th>
-<th>Priv. cert. size</th>
-</tr>
-<tr>
-<td>secp128r1</td>
-<td>112B</td>
-<td>132B</td>
-</tr>
-<tr>
-<td>secp160k1</td>
-<td>128B</td>
-<td>152B</td>
-</tr>
-<tr>
-<td>secp192k1</td>
-<td>144B</td>
-<td>172B</td>
-</tr>
-</table>
 
 Data structures required for provisioning a node
 ------------------------------------------------
@@ -261,6 +234,45 @@ Notes
   trusted (unless there is a path to a Certificate Authority).
 * the choice of the ECC curve name is hardcoded in the file *Makefile.curve*.
   Make sure that all the code is compiled with the same curve parameters.
+
+Library performance
+-------------------
+
+### Storage space requirements
+
+Because of our design choice, storage requirements for our light certificates are actually very low. Here is the actual storage size of a certificate for some popular curves:
+
+<table>
+<tr>
+<th>Curve name</th>
+<th>Pub. cert. size</th>
+<th>Priv. cert. size</th>
+</tr>
+<tr>
+<td>secp128r1</td>
+<td>112B</td>
+<td>132B</td>
+</tr>
+<tr>
+<td>secp160k1</td>
+<td>128B</td>
+<td>152B</td>
+</tr>
+<tr>
+<td>secp192k1</td>
+<td>144B</td>
+<td>172B</td>
+</tr>
+</table>
+
+### Cryptographic operations performance
+
+The [udp-client.c](udp-client.c) contains a *test_crypto()* function that runs all the
+cryptographic operations in a loop. We used that code to determined the speed
+of the different cryptographic primitives.  The file
+[code_benchmark.ipynb](benchmark/code_benchmark.ipynb) contains a little script
+to ease up the analysis of the raw data.
+If you don't have IPython install, you might want to visualize it online through the [ipynbviewer](http://nbviewer.ipython.org/github/nist-emntg/ecc-light-certificate/blob/master/benchmark/code_benchmark.ipynb) website.
 
 Contributors
 ------------
