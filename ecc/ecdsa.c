@@ -240,7 +240,7 @@ ecdsa_sign(uint8_t sha256sum[SHA256_DIGEST_LENGTH], NN_DIGIT *r, NN_DIGIT *s, NN
         memset(digest, 0, NUMBYTES);
         NN_Assign(digest, sha256tmp, SHA256_DIGEST_LENGTH / NN_DIGIT_LEN);
         if (result_bit_len == order_bit_len) {
-            NN_ModSmall(digest, order, NUMBYTES);
+            NN_ModSmall(digest, order, NUMWORDS);
         }
     }
 
